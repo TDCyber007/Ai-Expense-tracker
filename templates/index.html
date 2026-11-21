@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Expense Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <!-- ------------------------------------------------------- Topbar -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">&#129504;</div>
+        <div>
+          <h1>AI Expense Tracker</h1>
+          <p>Auto-categorize &middot; forecast &middot; save</p>
+        </div>
+      </div>
+      <span class="pill">ML-powered</span>
+      <div class="spacer"></div>
+      <div class="actions">
+        <button class="btn ghost" id="demoBtn">Load demo data</button>
+        <button class="btn ghost danger" id="resetBtn">Reset</button>
+      </div>
+    </header>
+
+    <!-- ------------------------------------------------------- KPIs -->
+    <section class="kpis">
+      <div class="kpi">
+        <div class="label">This month</div>
+        <div class="value" id="kpiMonth">$0.00</div>
+        <div class="sub" id="kpiMonthSub">&nbsp;</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Projected month-end</div>
+        <div class="value" id="kpiProjected">$0.00</div>
+        <div class="sub" id="kpiProjectedSub">forecast by the model</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Avg / day</div>
+        <div class="value" id="kpiAvg">$0.00</div>
+        <div class="sub" id="kpiAvgSub">&nbsp;</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Potential savings</div>
+        <div class="value" id="kpiSave" style="color:var(--good)">$0.00</div>
+        <div class="sub" id="kpiSaveSub">from AI tips</div>
+      </div>
+    </section>
+
+    <!-- ------------------------------------------------------- Grid -->
+    <section class="grid">
+      <!-- Left column -->
+      <div class="col">
+        <div class="card">
+          <h2>&#128221; Add expense</h2>
+          <p class="hint">Type a description — the model picks the category.</p>
+          <form id="addForm">
+            <div class="field">
+              <label for="desc">Description</label>
+              <input class="input" id="desc" autocomplete="off"
+                placeholder="e.g. Morning coffee at Starbucks" required />
+              <div class="cat-preview">
+                <span>Category:</span>
+                <span class="chosen" id="catPreview">detecting&hellip;</span>
+              </div>
+            </div>
+            <div class="row-2">
+              <div class="field">
+                <label for="amount">Amount</label>
+                <input class="input" id="amount" type="number" step="0.01"
+                  min="0.01" placeholder="0.00" required />
+              </div>
+              <div class="field">
+                <label for="date">Date</label>
+                <input class="input" id="date" type="date" required />
+              </div>
+            </div>
+            <button class="btn primary" type="submit" style="width:100%">
+              Add expense
+            </button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>&#128220; Recent transactions <span class="muted"
+            id="txnCount" style="font-weight:500;font-size:13px"></span></h2>
+          <p class="hint">Change a category to teach the model.</p>
+          <div class="txn-scroll">
+            <table class="txns">
+              <thead>
+                <tr>
+                  <th>Date</th><th>Description</th><th>Category</th>
+                  <th class="right">Amount</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="txnBody"></tbody>
+            </table>
+            <div class="empty" id="txnEmpty" hidden>No transactions yet.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div class="col">
+        <div class="card">
+          <h2>&#128200; Monthly spending forecast</h2>
+          <p class="hint">Projected from this month's burn rate + history.</p>
+          <div class="fc-headline">
+            <div class="fc-total" id="fcTotal">$0.00</div>
+            <div class="fc-band" id="fcBand">&nbsp;</div>
+          </div>
+          <div class="fc-bar-wrap">
+            <div class="fc-track"><div class="fc-fill" id="fcFill"></div></div>
+            <div class="fc-legend">
+              <span id="fcSoFar">$0 spent</span>
+              <span id="fcRemaining">&nbsp;</span>
+            </div>
+          </div>
+          <div class="cat-forecast" id="catForecast"></div>
+          <p class="hint" id="fcNext" style="margin-top:14px"></p>
+        </div>
+
+        <div class="charts">
+          <div class="card">
+            <h2>&#128202; Monthly totals</h2>
+            <p class="hint">Spend of each month.</p>
+            <div class="chart-box"><canvas id="barChart"></canvas></div>
+          </div>
+          <div class="card">
+            <h2>&#129513; This month by category</h2>
+            <p class="hint">Where your money goes.</p>
+            <div class="chart-box"><canvas id="doughnut"></canvas></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>&#128161; Savings recommendations</h2>
+          <p class="hint">Smart tips generated from your spending.</p>
+          <div class="tips" id="tips"></div>
+          <div class="tips-total" id="tipsTotal" hidden>
+            <span>If you act on these</span>
+            <span id="tipsTotalAmt">$0.00</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>window.CATEGORIES = {{ categories|tojson }};</script>
+  <script>window.BUDGETS = {{ budgets|tojson }};</script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
