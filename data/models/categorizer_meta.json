@@ -1,0 +1,18 @@
+{
+  "categories": [
+    "Food & Dining",
+    "Groceries",
+    "Transportation",
+    "Housing",
+    "Utilities",
+    "Entertainment",
+    "Health & Fitness",
+    "Shopping",
+    "Travel",
+    "Subscriptions",
+    "Education",
+    "Personal Care",
+    "Other"
+  ],
+  "trained_on": 1367
+}
